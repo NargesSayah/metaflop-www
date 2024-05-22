@@ -180,4 +180,4 @@ I'm setting it up in VSCode's Terminal.
      brew install cmake pkg-config cairo pango libpng jpeg giflib libtiff
      pip install argparse
      ```
-   - **MySQL**
+7. MySQL
