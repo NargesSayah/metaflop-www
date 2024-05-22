@@ -104,7 +104,7 @@ I'm setting it up in VSCode's Terminal.
        `Include Path: /usr/local/Cellar/freetype/2.10.4/include`
 
      - Now the cmake command might look like:
-       ```
+       ```bash
        cmake -GNinja \
        -DENABLE_PYTHON_SCRIPTING=ON \
        -DENABLE_GUI=OFF \
@@ -115,11 +115,11 @@ I'm setting it up in VSCode's Terminal.
        ```
 
      If you still got errors like `distutils Module Not Found Error`:
-     ```
+     ```bash
      pip install setuptools
      ```
      And re-run:
-     ```
+     ```bash
      cd build
      rm -rf *
      cmake -GNinja \
@@ -132,20 +132,52 @@ I'm setting it up in VSCode's Terminal.
 
    - **Build the Project:**
      Execute the build process with Ninja by running the following command in the same directory where you ran the CMake configuration:
-     ```
+     ```bash
      ninja
      ```
    - If you plan to install FontForge on your system (which may or may not be necessary depending on your needs), you can do so using the following command:
-     ```
+     ```bash
      sudo ninja install
      ```
-   - something
+   - **LCDF Typetools:**
+     ```bash
+     brew install lcdf-typetools
+     ```
      Note: This will probably ask you to link  this version, so:
      ```bash
      brew link lcdf-typetools
      ```
-     Here, I got an error indicating it could not symlink since some files share the same name between lcdf-typetools and texlive.
+     I got an error indicating it could not symlink since some files share the same name between lcdf-typetools and texlive.
      So:
      ```bash
      brew link --overwrite lcdf-typetools --dry-run
      ```
+   - **sfnt2woff:**
+     ```bash
+     xcode-select --install
+     git clone https://github.com/bramstein/sfnt2woff.git
+     cd sfnt2woff
+     make
+     sudo mv sfnt2woff /usr/local/bin/
+     ```
+     Note:
+     Since sfnt2woff is not available through Homebrew.
+   - **ttf2eot:**
+     ```bash
+     brew install ttf2eot
+     ```
+   - **T1 Utilities:**
+     ```bash
+     brew install t1utils
+     ```
+   - **Python and Libraries:**
+     ```bash
+     brew install python
+     ```
+     Make sure you're in the Fontforge directory:
+     ```bash
+     cd fontforge
+     brew install cmake pkg-config cairo pango libpng jpeg giflib libtiff
+     pip install argparse
+     ```
+   - **MySQL**
