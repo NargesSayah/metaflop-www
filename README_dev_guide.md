@@ -78,7 +78,8 @@ I'm setting it up in VSCode's Terminal.
 
      If CMake still cannot find certain libraries (like `Freetype`), you may need to provide hints about where to find them:
      ```bash
-     cmake -GNinja -DENABLE_PYTHON_SCRIPTING=ON -DENABLE_GUI=OFF -DPYTHON_EXECUTABLE=$(which python3) -DFREETYPE_LIBRARY=/path/to/freetype/lib -DFREETYPE_INCLUDE_DIRS=/path/to/freetype/include ..
+     cmake -GNinja -DENABLE_PYTHON_SCRIPTING=ON -DENABLE_GUI=OFF -DPYTHON_EXECUTABLE=$(which python3) -                  
+     DFREETYPE_LIBRARY=/path/to/freetype/lib -DFREETYPE_INCLUDE_DIRS=/path/to/freetype/include ..
      ```
      This is how you can find the `/path/to/freetype/lib` and `/path/to/freetype/include`:
      - First, ensure it is installed:
@@ -180,4 +181,107 @@ I'm setting it up in VSCode's Terminal.
      brew install cmake pkg-config cairo pango libpng jpeg giflib libtiff
      pip install argparse
      ```
-7. MySQL
+6. MySQL & Metaflop installation
+```bash
+brew install mysql
+brew services start mysql
+mysql -u root -p
+CREATE DATABASE metaflop_development;
+```
+Choose a location where you want to clone the Metaflop repository. 
+```bash
+cd ~/../..
+mkdir Metaflop
+cd Metaflop
+```
+
+Clone the Metaflop Repository:
+```bash
+git clone https://github.com/NargesSayah/metaflop-www.git
+```     
+
+Once the repository is cloned, navigate to the cloned directory and set up the database configuration.
+```bash
+cd metaflop-www
+cp config/db.yml.sample config/db.yml
+```
+Open config/db.yml in your editor and update it with your MySQL username and password.      
+
+Make sure you are in the Metaflop project directory and have installed the required Ruby gems.
+```bash
+gem install bundler -v 2.4.22
+bundle install
+```
+
+Here I got some errors:
+   `Gem::Ext::BuildError: ERROR: Failed to build gem native extension.`    
+and   
+   `An error occurred while installing mysql2 (0.5.5), and Bundler cannot continue.`     
+   ```Make sure that `gem install mysql2 -v '0.5.5' --source 'https://rubygems.org/'` succeeds before bundling.```    
+
+- The error you're encountering while trying to install the mysql2 gem is related to compatibility issues with MySQL and its libraries. To fix this, try ensuring that the correct version of MySQL and its headers are installed and correctly linked.
+   ```bash
+   brew install mysql-client
+   brew link --force mysql-client
+   brew link --force openssl@1.1
+   ```    
+- Set the environment variables to ensure the mysql2 gem uses the correct paths for MySQL and OpenSSL:
+   ```bash
+   export PATH="/usr/local/opt/mysql-client/bin:$PATH"
+   export LDFLAGS="-L/usr/local/opt/openssl@1.1/lib"
+   export CPPFLAGS="-I/usr/local/opt/openssl@1.1/include"
+   ```
+
+- Try to install the mysql2 gem manually with the correct options:
+   ```bash
+   gem install mysql2 -v '0.5.5' -- --with-ldflags="-L/usr/local/opt/openssl@1.1/lib" --with-cppflags="-I/usr/local/opt/openssl@1.1/include"
+   ```
+
+- Again you might get an error like this: ```An error occurred while installing mysql2 (0.5.5), and Bundler cannot continue.
+Make sure that `gem install mysql2 -v '0.5.5' --source 'https://rubygems.org/'` succeeds before bundling.``` which means there is some version mismatches between the MySQL client library and the gem. Try:
+   ```bash
+   brew uninstall mysql-client
+   brew install mysql@5.7
+   brew link --force mysql@5.7
+   export PATH="/usr/local/opt/mysql@5.7/bin:$PATH"
+   export LDFLAGS="-L/usr/local/opt/openssl@1.1/lib"
+   export CPPFLAGS="-I/usr/local/opt/openssl@1.1/include"
+   gem install mysql2 -v '0.5.5' -- --with-mysql-config=/usr/local/opt/mysql@5.7/bin/mysql_config
+   ```
+
+- Now you should be able to do:
+   ```bash
+   gem install bundler -v 2.4.22
+   bundle install
+   ```
+
+7. Run the Application:
+```bash
+gem install rack
+rackup
+```
+Did you get ```cannot load such file -- sinatra/asset_pipeline (LoadError)```?      
+`sinatra/asset_pipeline` gem not being found could be due to the gem not being installed correctly or not being included in the Gemfile.
+- Ensure sinatra-asset-pipeline is in the Gemfile:
+  ```bash
+  gem 'sinatra-asset-pipeline', github: 'koffeinfrei/sinatra-asset-pipeline'
+  ```
+- Re-run bundle install. This should be the last time!
+  ```bash
+  bundle install
+  ```
+- Verify that the gem is installed by checking the bundler's list of installed gems:
+  ```bash
+  bundle show sinatra-asset-pipeline
+  ```
+- Re-run the application:
+  ```bash
+  rackup
+  ```
+
+8. WEBrick (the default Ruby web server) must be running on port 9292.    
+   Open your preferred web browser and go to http://localhost:9292     
+   Enjoy!
+
+
+   
